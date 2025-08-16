@@ -1,0 +1,32 @@
+
+/* Base styles for mobile devices */
+body {
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+.container {
+  width: 100%;
+  padding: 0 15px;
+}
+
+/* Responsive styles for tablets */
+@media (min-width: 768px) {
+  .container {
+    max-width: 750px;
+  }
+}
+
+/* Responsive styles for desktops */
+@media (min-width: 992px) {
+  .container {
+    max-width: 970px;
+  }
+}
+
+/* Responsive styles for large desktops */
+@media (min-width: 1200px) {
+  .container {
+    max-width: 1170px;
+  }
+}

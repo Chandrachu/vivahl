@@ -1,0 +1,2168 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vivahly - Wedding Planning App</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Playfair+Display:wght@700&display=swap"
+        rel="stylesheet">
+    <link rel="icon"
+        href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>💍</text></svg>">
+    <meta name="description"
+        content="Plan your perfect wedding with Vivahly - AI-powered vendor recommendations, venue bookings, and wedding planning tools.">
+    <meta name="theme-color" content="#8B4513">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background: linear-gradient(135deg, #FCE4EC 0%, #FFF8E1 100%);
+            overflow-x: hidden;
+        }
+
+        .phone-container {
+            width: min(375px, 100vw - 40px);
+            height: min(812px, 100vh - 40px);
+            margin: 20px auto;
+            background: #000;
+            border-radius: 40px;
+            padding: 10px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            position: relative;
+        }
+
+        @media (max-width: 480px) {
+            .phone-container {
+                width: 100vw;
+                height: 100vh;
+                margin: 0;
+                border-radius: 0;
+                padding: 0;
+            }
+        }
+
+        .screen {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #FCE4EC 0%, #FFF8E1 100%);
+            border-radius: 30px;
+            overflow: hidden;
+            position: relative;
+            display: none;
+        }
+
+        .screen.active {
+            display: block;
+        }
+
+        .status-bar {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 8px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 14px;
+            font-weight: 500;
+            color: #8B4513;
+            z-index: 10;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #8B4513 0%, #A0522D 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(139, 69, 19, 0.3);
+            position: relative;
+        }
+
+        .header h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .header p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .content {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            display: grid;
+            gap: 20px;
+        }
+
+        .search-bar {
+            background: white;
+            border-radius: 25px;
+            padding: 12px 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .search-bar input {
+            flex: 1;
+            border: none;
+            outline: none;
+            font-size: 16px;
+            color: #333;
+        }
+
+        .search-bar input::placeholder {
+            color: #999;
+        }
+
+        .category-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+
+        .category-card {
+            background: white;
+            border-radius: 15px;
+            padding: 15px;
+            text-align: center;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .category-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
+            border-color: #8B4513;
+        }
+
+        .category-card .icon {
+            font-size: 36px;
+            margin-bottom: 8px;
+            color: #8B4513;
+        }
+
+        .category-card h3 {
+            color: #333;
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .vendor-card {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .vendor-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
+        }
+
+        .vendor-image {
+            width: 100%;
+            height: 180px;
+            background: linear-gradient(45deg, #8B4513, #CD853F);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 48px;
+            position: relative;
+        }
+
+        .vendor-info {
+            padding: 15px;
+        }
+
+        .vendor-info h3 {
+            color: #333;
+            font-size: 20px;
+            margin-bottom: 8px;
+        }
+
+        .vendor-info p {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+
+        .rating {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            margin: 10px 0;
+        }
+
+        .stars {
+            color: #FFD700;
+            font-size: 16px;
+        }
+
+        .price {
+            color: #8B4513;
+            font-weight: 600;
+            font-size: 18px;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #8B4513 0%, #A0522D 100%);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            box-shadow: 0 4px 15px rgba(139, 69, 19, 0.3);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(139, 69, 19, 0.4);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #CD853F 0%, #DEB887 100%);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 2px solid #8B4513;
+            color: #8B4513;
+        }
+
+        .bottom-nav {
+            background: white;
+            padding: 12px;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            box-shadow: 0 -4px 15px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            bottom: 0;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            cursor: pointer;
+            padding: 8px 12px;
+            border-radius: 12px;
+            transition: background 0.3s ease;
+        }
+
+        .nav-item.active {
+            background: rgba(139, 69, 19, 0.1);
+            color: #8B4513;
+        }
+
+        .nav-item .icon {
+            font-size: 24px;
+        }
+
+        .nav-item span {
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 6px;
+            color: #333;
+            font-weight: 500;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #E5E5E5;
+            border-radius: 12px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #8B4513;
+            box-shadow: 0 0 0 3px rgba(139, 69, 19, 0.1);
+        }
+
+        .filters {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 15px;
+        }
+
+        .filter-chip {
+            background: white;
+            border: 2px solid #E5E5E5;
+            border-radius: 20px;
+            padding: 8px 14px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .filter-chip.active {
+            background: #8B4513;
+            color: white;
+            border-color: #8B4513;
+        }
+
+        .banner {
+            background: linear-gradient(135deg, #8B4513 0%, #A0522D 100%);
+            color: white;
+            padding: 25px;
+            text-align: center;
+            border-radius: 15px;
+            box-shadow: 0 6px 20px rgba(139, 69, 19, 0.3);
+        }
+
+        .banner h2 {
+            font-size: 22px;
+            margin-bottom: 8px;
+        }
+
+        .banner p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .recommendation-card {
+            background: white;
+            border-radius: 15px;
+            padding: 15px;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .recommendation-card:hover {
+            transform: translateY(-3px);
+        }
+
+        .profile-header {
+            text-align: center;
+            padding: 30px 20px;
+            background: linear-gradient(135deg, #8B4513 0%, #A0522D 100%);
+            color: white;
+        }
+
+        .profile-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: white;
+            margin: 0 auto 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            color: #8B4513;
+        }
+
+        .menu-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            background: white;
+            border-radius: 12px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .menu-item:hover {
+            transform: translateX(5px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .menu-item .icon {
+            font-size: 20px;
+            color: #8B4513;
+        }
+
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin: 15px 0;
+        }
+
+        .gallery-item {
+            height: 140px;
+            background: linear-gradient(45deg, #8B4513, #CD853F);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 28px;
+        }
+
+        .pricing-table {
+            background: white;
+            border-radius: 12px;
+            padding: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .pricing-tier {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #E5E5E5;
+        }
+
+        .pricing-tier:last-child {
+            border-bottom: none;
+        }
+
+        .review-item {
+            background: white;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .review-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 8px;
+        }
+
+        .reviewer-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #8B4513;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+        }
+
+        .tabs {
+            display: flex;
+            background: white;
+            border-radius: 12px;
+            margin-bottom: 15px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .tab {
+            flex: 1;
+            padding: 12px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .tab.active {
+            background: #8B4513;
+            color: white;
+        }
+
+        .wishlist-item {
+            background: white;
+            border-radius: 12px;
+            padding: 12px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .wishlist-image {
+            width: 80px;
+            height: 80px;
+            border-radius: 10px;
+            background: linear-gradient(45deg, #8B4513, #CD853F);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+        }
+
+        .back-btn {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            background: rgba(255, 255, 255, 0.9);
+            border: none;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 16px;
+            color: #8B4513;
+            transition: background 0.3s ease;
+        }
+
+        .back-btn:hover {
+            background: white;
+        }
+
+        .floating-btn {
+            position: fixed;
+            bottom: 100px;
+            right: 20px;
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #8B4513 0%, #A0522D 100%);
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            box-shadow: 0 4px 20px rgba(139, 69, 19, 0.4);
+            z-index: 100;
+            transition: transform 0.3s ease;
+        }
+
+        .floating-btn:hover {
+            transform: scale(1.1);
+        }
+
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            max-width: 90%;
+            max-height: 80%;
+            overflow-y: auto;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .notification {
+            background: #4CAF50;
+            color: white;
+            padding: 12px;
+            border-radius: 10px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .notification.error {
+            background: #f44336;
+        }
+
+        .notification.warning {
+            background: #ff9800;
+        }
+
+        .controls {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 8px;
+            z-index: 1000;
+        }
+
+        .control-btn {
+            background: #8B4513;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 15px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: background 0.3s ease;
+        }
+
+        .control-btn:hover {
+            background: #A0522D;
+        }
+
+        .screen-nav {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 12px;
+            padding: 8px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+        }
+
+        .screen-nav select {
+            border: none;
+            background: none;
+            font-size: 14px;
+            color: #8B4513;
+            cursor: pointer;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .animate-in {
+            animation: fadeIn 0.5s ease;
+        }
+
+        .onboarding-item {
+            text-align: center;
+            padding: 15px;
+        }
+
+        .onboarding-item img {
+            width: 100%;
+            height: 280px;
+            border-radius: 12px;
+            margin-bottom: 15px;
+            background: linear-gradient(45deg, #8B4513, #CD853F);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 48px;
+        }
+
+        .dot-indicators {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin: 15px 0;
+        }
+
+        .dot {
+            width: 8px;
+            height: 8px;
+            background: #E5E5E5;
+            border-radius: 50%;
+            transition: all 0.3s ease;
+        }
+
+        .dot.active {
+            background: #8B4513;
+            width: 10px;
+            height: 10px;
+        }
+
+        .blog-item {
+            background: white;
+            border-radius: 12px;
+            padding: 12px;
+            margin-bottom: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .blog-image {
+            width: 100%;
+            height: 140px;
+            border-radius: 10px;
+            background: linear-gradient(45deg, #8B4513, #CD853F);
+            margin-bottom: 8px;
+        }
+
+        .chat-message {
+            background: white;
+            border-radius: 12px;
+            padding: 12px;
+            margin-bottom: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .chat-input {
+            display: flex;
+            gap: 8px;
+            padding: 12px;
+            background: white;
+            box-shadow: 0 -4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .chat-input input {
+            flex: 1;
+            padding: 10px;
+            border: 2px solid #E5E5E5;
+            border-radius: 12px;
+            font-size: 14px;
+        }
+
+        .chat-input button {
+            background: #8B4513;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 12px;
+            cursor: pointer;
+        }
+
+        .payment-success {
+            text-align: center;
+            padding: 30px;
+        }
+
+        .payment-success .icon {
+            font-size: 72px;
+            color: #4CAF50;
+            margin-bottom: 15px;
+        }
+
+        .social-buttons {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+            margin-top: 10px;
+        }
+
+        .social-btn {
+            background: white;
+            border: 2px solid #E5E5E5;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .social-btn:hover {
+            background: #8B4513;
+            color: white;
+            border-color: #8B4513;
+        }
+
+        .login-card {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+            max-width: 90%;
+            margin: 0 auto;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .guest-table {
+            background: white;
+            border-radius: 12px;
+            padding: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .guest-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #E5E5E5;
+        }
+
+        .guest-row:last-child {
+            border-bottom: none;
+        }
+
+        .settings-section {
+            background: white;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .settings-section h3 {
+            font-size: 18px;
+            color: #333;
+            margin-bottom: 12px;
+            font-weight: 600;
+        }
+
+        .toggle {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .toggle input {
+            width: 40px;
+            height: 20px;
+            appearance: none;
+            background: #E5E5E5;
+            border-radius: 20px;
+            position: relative;
+            cursor: pointer;
+        }
+
+        .toggle input:checked {
+            background: #8B4513;
+        }
+
+        .toggle input::before {
+            content: '';
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            background: white;
+            border-radius: 50%;
+            top: 2px;
+            left: 2px;
+            transition: all 0.3s ease;
+        }
+
+        .toggle input:checked::before {
+            left: 22px;
+        }
+
+        /* Enhanced loading animations */
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.5;
+            }
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(100%);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #E5E5E5;
+            border-top: 4px solid #8B4513;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        /* Improved accessibility */
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+        }
+
+        /* Focus improvements */
+        .btn:focus,
+        .nav-item:focus,
+        .category-card:focus {
+            outline: 2px solid #8B4513;
+            outline-offset: 2px;
+        }
+
+        /* Performance optimizations */
+        .vendor-image,
+        .gallery-item,
+        .wishlist-image {
+            will-change: transform;
+        }
+
+        /* Modern card hover effects */
+        .category-card {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .category-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Better mobile touch targets */
+        @media (max-width: 480px) {
+
+            .btn,
+            .nav-item,
+            .category-card {
+                min-height: 48px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Screen Navigation -->
+    <div class="screen-nav">
+        <select id="screenSelect" onchange="changeScreen(this.value)">
+            <option value="onboarding">Onboarding</option>
+            <option value="splash">Splash Screen</option>
+            <option value="login">Login/Register</option>
+            <option value="home">Home</option>
+            <option value="categories">Categories</option>
+            <option value="search">Search & Filters</option>
+            <option value="vendor-profile">Vendor Profile</option>
+            <option value="vendor-gallery">Vendor Gallery</option>
+            <option value="booking-form">Booking Form</option>
+            <option value="payment-confirmation">Payment Confirmation</option>
+            <option value="wishlist">Wishlist</option>
+            <option value="user-dashboard">User Dashboard</option>
+            <option value="guest-management">Guest Management</option>
+            <option value="review-submission">Review Submission</option>
+            <option value="notifications">Notifications</option>
+            <option value="chat">Chat</option>
+            <option value="blog">Blog & Tips</option>
+            <option value="referral">Referral</option>
+            <option value="profile">Profile</option>
+            <option value="settings">Settings</option>
+            <option value="help">Help & Support</option>
+        </select>
+    </div>
+
+    <div class="phone-container">
+        <!-- Onboarding Screen -->
+        <div class="screen" id="onboarding">
+            <div style="height: 100%; display: flex; flex-direction: column; justify-content: space-between;">
+                <div class="content">
+                    <div class="onboarding-item animate-in">
+                        <div class="img">💍</div>
+                        <h2>Plan Your Dream Wedding</h2>
+                        <p>Personalized suggestions and tools for your perfect day.</p>
+                    </div>
+                    <div class="onboarding-item animate-in">
+                        <div class="img">🏛️</div>
+                        <h2>Explore with AR</h2>
+                        <p>Visualize venues and décor in 3D with AR tools.</p>
+                    </div>
+                    <div class="onboarding-item animate-in">
+                        <div class="img">🌿</div>
+                        <h2>Eco-Friendly Planning</h2>
+                        <p>Choose sustainable vendors and digital invites.</p>
+                    </div>
+                </div>
+                <div style="padding: 20px;">
+                    <div class="dot-indicators">
+                        <div class="dot active"></div>
+                        <div class="dot"></div>
+                        <div class="dot"></div>
+                    </div>
+                    <button class="btn" style="width: 100%;" onclick="changeScreen('login')">Get Started</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Splash Screen -->
+        <div class="screen active" id="splash">
+            <div
+                style="background: linear-gradient(135deg, #8B4513 0%, #A0522D 100%); height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; color: white;">
+                <div style="font-size: 80px; margin-bottom: 20px;">💍</div>
+                <h1 style="font-size: 48px; margin-bottom: 10px; font-family: 'Playfair Display', serif;">Vivahly</h1>
+                <p style="font-size: 18px; opacity: 0.9; margin-bottom: 50px;">Your Perfect Wedding Awaits</p>
+                <div
+                    style="width: 60px; height: 4px; background: white; border-radius: 2px; animation: pulse 2s infinite;">
+                </div>
+            </div>
+        </div>
+
+        <!-- Login/Register Screen -->
+        <div class="screen" id="login">
+            <div
+                style="background: linear-gradient(135deg, #FCE4EC 0%, #FFF8E1 100%); height: 100%; display: flex; flex-direction: column; justify-content: center; padding: 20px;">
+                <div class="login-card">
+                    <div style="text-align: center; margin-bottom: 20px;">
+                        <div style="font-size: 48px; margin-bottom: 10px;">💍</div>
+                        <h1 style="font-size: 28px; color: #8B4513; font-family: 'Playfair Display', serif;">Welcome to
+                            Vivahly</h1>
+                        <p style="color: #666; font-size: 14px;">Plan your dream wedding</p>
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email or Phone</label>
+                        <input type="email" id="email" placeholder="Enter email or phone" aria-label="Email or Phone"
+                            required autocomplete="email">
+                    </div>
+                    <div class="form-group">
+                        <label for="password">Password</label>
+                        <div style="position: relative;">
+                            <input type="password" id="password" placeholder="Enter password" aria-label="Password"
+                                required autocomplete="current-password">
+                            <button type="button" class="btn-outline"
+                                style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); padding: 5px 10px;"
+                                onclick="togglePassword()" aria-label="Toggle password visibility">Show</button>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label style="display: flex; align-items: center; gap: 8px;">
+                            <input type="checkbox" id="twoFactor" onchange="toggleOTP()"> Enable 2FA (OTP via SMS)
+                        </label>
+                        <input type="text" id="otp" placeholder="Enter OTP" style="display: none; margin-top: 10px;"
+                            aria-label="OTP" autocomplete="one-time-code">
+                    </div>
+                    <button class="btn" style="width: 100%; margin-bottom: 15px;" onclick="login()"
+                        aria-label="Log in to your account">
+                        <span id="loginText">Log In</span>
+                        <div class="loading-spinner" id="loginSpinner"
+                            style="display: none; margin: 0; width: 20px; height: 20px;"></div>
+                    </button>
+                    <div style="text-align: center; margin: 15px 0;">
+                        <span style="color: #666;">or continue with</span>
+                    </div>
+                    <div class="social-buttons">
+                        <button class="social-btn" aria-label="Login with Google">🌐</button>
+                        <button class="social-btn" aria-label="Login with Facebook">📘</button>
+                        <button class="social-btn" aria-label="Login with Apple">🍎</button>
+                    </div>
+                    <div style="text-align: center; margin-top: 15px;">
+                        <a href="#" style="color: #8B4513; font-size: 14px;">Forgot Password?</a>
+                    </div>
+                    <div style="text-align: center; margin-top: 10px;">
+                        <p style="color: #666; font-size: 14px;">New here? <a href="#" style="color: #8B4513;">Sign
+                                Up</a></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Home Screen -->
+        <div class="screen" id="home">
+            <div class="status-bar">
+                <span>9:41</span>
+                <span>🔋 100%</span>
+            </div>
+            <div class="header">
+                <h1>Vivahly</h1>
+                <p>Hi, Anita & Rohan! 145 days to go</p>
+            </div>
+            <div class="content">
+                <div class="recommendation-card animate-in">
+                    <h3>AI Recommendation</h3>
+                    <p>Based on your rustic theme preference, check out Floral Dreams for décor!</p>
+                    <button class="btn-outline" style="width: 100%;">Explore Now</button>
+                </div>
+                <div class="search-bar">
+                    <span>🔍</span>
+                    <input type="text" placeholder="Search venues, vendors..." aria-label="Search vendors">
+                    <span>🎯</span>
+                </div>
+                <div class="banner">
+                    <h2>Wedding Season Sale!</h2>
+                    <p>Up to 30% off on premium vendors</p>
+                </div>
+                <div class="category-grid">
+                    <div class="category-card" onclick="changeScreen('categories')">
+                        <div class="icon">🏛️</div>
+                        <h3>Venues</h3>
+                    </div>
+                    <div class="category-card" onclick="changeScreen('categories')">
+                        <div class="icon">📸</div>
+                        <h3>Photography</h3>
+                    </div>
+                    <div class="category-card" onclick="changeScreen('categories')">
+                        <div class="icon">🍽️</div>
+                        <h3>Catering</h3>
+                    </div>
+                    <div class="category-card" onclick="changeScreen('categories')">
+                        <div class="icon">💄</div>
+                        <h3>Makeup</h3>
+                    </div>
+                </div>
+                <div class="featured-vendors">
+                    <div class="vendor-card" onclick="changeScreen('vendor-profile')">
+                        <div class="vendor-image">🏛️</div>
+                        <div class="vendor-info">
+                            <h3>Royal Palace</h3>
+                            <p>Delhi NCR</p>
+                            <div class="rating">
+                                <span class="stars">⭐⭐⭐⭐⭐</span>
+                                <span>4.8</span>
+                            </div>
+                            <p class="price">₹2,50,000</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="bottom-nav">
+                <div class="nav-item active" onclick="changeScreen('home')">
+                    <div class="icon">🏠</div>
+                    <span>Home</span>
+                </div>
+                <div class="nav-item" onclick="changeScreen('search')">
+                    <div class="icon">🔍</div>
+                    <span>Search</span>
+                </div>
+                <div class="nav-item" onclick="changeScreen('wishlist')">
+                    <div class="icon">❤️</div>
+                    <span>Saved</span>
+                </div>
+                <div class="nav-item" onclick="changeScreen('guest-management')">
+                    <div class="icon">👥</div>
+                    <span>Guests</span>
+                </div>
+                <div class="nav-item" onclick="changeScreen('profile')">
+                    <div class="icon">👤</div>
+                    <span>Profile</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Categories Screen -->
+        <div class="screen" id="categories">
+            <div class="status-bar">
+                <span>9:41</span>
+                <span>🔋 100%</span>
+            </div>
+            <div class="header">
+                <button class="back-btn" onclick="changeScreen('home')">←</button>
+                <h1>Categories</h1>
+                <p>Explore wedding services</p>
+            </div>
+            <div class="content">
+                <div class="search-bar">
+                    <span>🔍</span>
+                    <input type="text" placeholder="Search categories..." aria-label="Search categories">
+                </div>
+                <div class="category-grid">
+                    <div class="category-card" onclick="changeScreen('search')">
+                        <div class="icon">🏛️</div>
+                        <h3>Venues</h3>
+                    </div>
+                    <div class="category-card" onclick="changeScreen('search')">
+                        <div class="icon">📸</div>
+                        <h3>Photography</h3>
+                    </div>
+                    <div class="category-card" onclick="changeScreen('search')">
+                        <div class="icon">🍽️</div>
+                        <h3>Catering</h3>
+                    </div>
+                    <div class="category-card" onclick="changeScreen('search')">
+                        <div class="icon">💄</div>
+                        <h3>Makeup</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="bottom-nav">
+                <div class="nav-item" onclick="changeScreen('home')">
+                    <div class="icon">🏠</div>
+                    <span>Home</span>
+                </div>
+                <div class="nav-item active" onclick="changeScreen('search')">
+                    <div class="icon">🔍</div>
+                    <span>Search</span>
+                </div>
+                <div class="nav-item" onclick="changeScreen('wishlist')">
+                    <div class="icon">❤️</div>
+                    <span>Saved</span>
+                </div>
+                <div class="nav-item" onclick="changeScreen('guest-management')">
+                    <div class="icon">👥</div>
+                    <span>Guests</span>
+                </div>
+                <div class="nav-item" onclick="changeScreen('profile')">
+                    <div class="icon">👤</div>
+                    <span>Profile</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Search & Filters Screen -->
+        <div class="screen" id="search">
+            <div class="status-bar">
+                <span>9:41</span>
+                <span>🔋 100%</span>
+            </div>
+            <div class="header">
+                <button class="back-btn" onclick="changeScreen('home')">←</button>
+                <h1>Search Vendors</h1>
+                <p>Find your perfect match</p>
+            </div>
+            <div class="content">
+                <div class="search-bar">
+                    <span>🔍</span>
+                    <input type="text" placeholder="Search vendors..." aria-label="Search vendors">
+                </div>
+                <div class="filters">
+                    <div class="filter-chip">Delhi NCR</div>
+                    <div class="filter-chip active">₹50k-₹1L</div>
+                    <div class="filter-chip">4+ Stars</div>
+                    <div class="filter-chip">Eco-Friendly</div>
+                </div>
+                <div class="vendor-card" onclick="changeScreen('vendor-profile')">
+                    <div class="vendor-image">🏛️</div>
+                    <div class="vendor-info">
+                        <h3>Royal Palace</h3>
+                        <p>Delhi NCR • Sustainable Venue</p>
+                        <div class="rating">
+                            <span class="stars">⭐⭐⭐⭐⭐</span>
+                            <span>4.8 (120 reviews)</span>
+                        </div>
+                        <p class="price">₹2,50,000</p>
+                    </div>
+                </div>
+            </div>
+            <div class="bottom-nav">
+                <div class="nav-item" onclick="changeScreen('home')">
+                    <div class="icon">🏠</div>
+                    <span>Home</span>
+                </div>
+                <div class="nav-item active" onclick="changeScreen('search')">
+                    <div class="icon">🔍</div>
+                    <span>Search</span>
+                </div>
+                <div class="nav-item" onclick="changeScreen('wishlist')">
+                    <div class="icon">❤️</div>
+                    <span>Saved</span>
+                </div>
+                <div class="nav-item" onclick="changeScreen('guest-management')">
+                    <div class="icon">👥</div>
+                    <span>Guests</span>
+                </div>
+                <div class="nav-item" onclick="changeScreen('profile')">
+                    <div class="icon">👤</div>
+                    <span>Profile</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Vendor Profile Screen -->
+        <div class="screen" id="vendor-profile">
+            <div class="status-bar">
+                <span>9:41</span>
+                <span>🔋 100%</span>
+            </div>
+            <div class="header">
+                <button class="back-btn" onclick="changeScreen('search')">←</button>
+                <h1>Royal Palace</h1>
+                <p>Delhi NCR • Venue</p>
+            </div>
+            <div class="content">
+                <div class="vendor-image">🏛️</div>
+                <div class="vendor-info">
+                    <h3>Royal Palace</h3>
+                    <p>Eco-friendly venue with lush gardens</p>
+                    <div class="rating">
+                        <span class="stars">⭐⭐⭐⭐⭐</span>
+                        <span>4.8 (120 reviews)</span>
+                    </div>
+                    <p class="price">₹2,50,000</p>
+                    <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+                        <button class="btn" style="flex: 1;" onclick="changeScreen('booking-form')">Book Now</button>
+                        <button class="btn-secondary" style="flex: 1;" onclick="openARPreview()">AR Preview</button>
+                    </div>
+                    <div class="social-buttons">
+                        <button class="social-btn" onclick="shareContent('Instagram')"
+                            aria-label="Share on Instagram">📷</button>
+                        <button class="social-btn" onclick="shareContent('Pinterest')"
+                            aria-label="Share on Pinterest">📌</button>
+                    </div>
+                </div>
+                <div class="gallery-grid" onclick="changeScreen('vendor-gallery')">
+                    <div class="gallery-item">📷 1</div>
+                    <div class="gallery-item">📷 2</div>
+                </div>
+                <div class="pricing-table">
+                    <h3>Pricing Packages</h3>
+                    <div class="pricing-tier">
+                        <span>Standard Package</span>
+                        <span>₹2,50,000</span>
+                    </div>
+                    <div class="pricing-tier">
+                        <span>Premium Package</span>
+                        <span>₹4,00,000</span>
+                    </div>
+                </div>
+            </div>
+            <div class="bottom-nav">
+                <div class="nav-item" onclick="changeScreen('home')">
+                    <div class="icon">🏠</div>
+                    <span>Home</span>
+                </div>
+                <div class="nav-item" onclick="changeScreen('search')">
+                    <div class="icon">🔍</div>
+                    <span>Search</span>
+                </div>
+                <div class="nav-item" onclick="changeScreen('wishlist')">
+                    <div class="icon">❤️</div>
+                    <span>Saved</span>
+                </div>
+                <div class="nav-item" onclick="changeScreen('guest-management')">
+                    <div class="icon">👥</div>
+                    <span>Guests</span>
+                </div>
+                <div class="nav-item" onclick="changeScreen('profile')">
+                    <div class="icon">👤</div>
+                    <span>Profile</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Vendor Gallery Screen -->
+        <div class="screen" id="vendor-gallery">
+            <div class="status-bar">
+                <span>9:41</span>
+                <span>🔋 100%</span>
+            </div>
+            <div class="header">
+                <button class="back-btn" onclick="changeScreen('vendor-profile')">←</button>
+                <h1>Royal Palace Gallery</h1>
+                <p>Explore in AR</p>
+            </div>
+            <div class="content">
+                <div class="gallery-grid">
+                    <div class="gallery-item">📷 1</div>
+                    <div class="gallery-item">📷 2</div>
+                    <div class="gallery-item">📷 3</div>
+                    <div class="gallery-item">📷 4</div>
+                </div>
+            </div>
+            <div class="bottom-nav">
+                <div class="nav-item" onclick="changeScreen('home')">
+                    <div class="icon">🏠</div>
+                    <span>Home</span>
+                </div>
+                <div class="nav-item" onclick="changeScreen('search')">
+                    <div class="icon">🔍</div>
+                    <span>Search</span>
+                </div>
+                <div class="nav-item" onclick="changeScreen('wishlist')">
+                    <div class="icon">❤️</div>
+                    <span>Saved</span>
+                </div>
+                <div class="nav-item" onclick="changeScreen('guest-management')">
+                    <div class="icon">👥</div>
+                    <span>Guests</span>
+                </div>
+                <div class="nav-item" onclick="changeScreen('profile')">
+                    <div class="icon">👤</div>
+                    <span>Profile</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Booking Form Screen -->
+        <div class="screen" id="booking-form">
+            <div class="status-bar">
+                <span>9:41</span>
+                <span>🔋 100%</span>
+            </div>
+            <div class="header">
+                <button class="back-btn" onclick="changeScreen('vendor-profile')">←</button>
+                <h1>Booking Inquiry</h1>
+                <p>Contact Royal Palace</p>
+            </div>
+            <div class="content">
+                <div class="form-group">
+                    <label>Event Type</label>
+                    <select>
+                        <option>Wedding</option>
+                        <option>Haldi</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Event Date</label>
+                    <input type="date" aria-label="Event date">
+                </div>
+                <div class="form-group">
+                    <label>Guest Count</label>
+                    <input type="number" placeholder="Approximate number of guests" aria-label="Guest count">
+                </div>
+                <button class="btn" style="width: 100%;" onclick="changeScreen('payment-confirmation')">Send
+                    Inquiry</button>
+            </div>
+        </div>
+
+        <!-- Payment Confirmation Screen -->
+        <div class="screen" id="payment-confirmation">
+            <div class="status-bar">
+                <span>9:41</span>
+                <span>🔋 100%</span>
+            </div>
+            <div class="header">
+                <h1>Booking Confirmed</h1>
+                <p>Your inquiry has been sent</p>
+            </div>
+            <div class="content">
+                <div class="payment-success">
+                    <div class="icon">✅</div>
+                    <h2>Inquiry Sent!</h2>
+                    <p>Royal Palace will contact you soon.</p>
+                    <button class="btn" style="width: 100%; margin-top: 20px;"
+                        onclick="changeScreen('user-dashboard')">Go to Dashboard</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Wishlist Screen -->
+        <div class="screen" id="wishlist">
+            <div class="status-bar">
+                <span>9:41</span>
+                <span>🔋 100%</span>
+            </div>
+            <div class="header">
+                <button class="back-btn" onclick="changeScreen('home')">←</button>
+                <h1>Saved Vendors</h1>
+                <p>Your favorites</p>
+            </div>
+            <div class="content">
+                <div class="wishlist-item">
+                    <div class="wishlist-image">🏛️</div>
+                    <div class="wishlist-info">
+                        <h3>Royal Palace</h3>
+                        <p>Delhi NCR • Venue</p>
+                        <div class="rating">
+                            <span class="stars">⭐⭐⭐⭐⭐</span>
+                            <span>4.8</span>
+                        </div>
+                    </div>
+                    <button class="btn-outline" style="padding: 8px;"
+                        onclick="changeScreen('booking-form')">Book</button>
+                </div>
+            </div>
+            <div class="bottom-nav">
+                <div class="nav-item" onclick="changeScreen('home')">
+                    <div class="icon">🏠</div>
+                    <span>Home</span>
+                </div>
+                <div class="nav-item" onclick="changeScreen('search')">
+                    <div class="icon">🔍</div>
+                    <span>Search</span>
+                </div>
+                <div class="nav-item active" onclick="changeScreen('wishlist')">
+                    <div class="icon">❤️</div>
+                    <span>Saved</span>
+                </div>
+                <div class="nav-item" onclick="changeScreen('guest-management')">
+                    <div class="icon">👥</div>
+                    <span>Guests</span>
+                </div>
+                <div class="nav-item" onclick="changeScreen('profile')">
+                    <div class="icon">👤</div>
+                    <span>Profile</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- User Dashboard Screen -->
+        <div class="screen" id="user-dashboard">
+            <div class="status-bar">
+                <span>9:41</span>
+                <span>🔋 100%</span>
+            </div>
+            <div class="header">
+                <h1>My Dashboard</h1>
+                <p>Manage your wedding</p>
+            </div>
+            <div class="content">
+                <div class="tabs">
+                    <div class="tab active" onclick="showTab('profile-details')">Profile</div>
+                    <div class="tab" onclick="showTab('bookings')">Bookings</div>
+                    <div class="tab" onclick="showTab('guests'); changeScreen('guest-management')">Guests</div>
+                </div>
+                <div id="profile-details" class="tab-content">
+                    <div class="form-group">
+                        <label>Name</label>
+                        <input type="text" value="Anita Sharma" aria-label="Name">
+                    </div>
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input type="email" value="anita.sharma@example.com" aria-label="Email">
+                    </div>
+                    <button class="btn" style="width: 100%;">Save Changes</button>
+                </div>
+                <div id="bookings" class="tab-content" style="display: none;">
+                    <div class="wishlist-item">
+                        <div class="wishlist-image">🏛️</div>
+                        <div class="wishlist-info">
+                            <h3>Royal Palace</h3>
+                            <p>Status: Pending</p>
+                        </div>
+                        <button class="btn-outline" style="padding: 8px;" onclick="changeScreen('chat')">Chat</button>
+                    </div>
+                </div>
+            </div>
+            <div class="bottom-nav">
+                <div class="nav-item" onclick="changeScreen('home')">
+                    <div class="icon">🏠</div>
+                    <span>Home</span>
+                </div>
+                <div class="nav-item" onclick="changeScreen('search')">
+                    <div class="icon">🔍</div>
+                    <span>Search</span>
+                </div>
+                <div class="nav-item" onclick="changeScreen('wishlist')">
+                    <div class="icon">❤️</div>
+                    <span>Saved</span>
+                </div>
+                <div class="nav-item" onclick="changeScreen('guest-management')">
+                    <div class="icon">👥</div>
+                    <span>Guests</span>
+                </div>
+                <div class="nav-item active" onclick="changeScreen('profile')">
+                    <div class="icon">👤</div>
+                    <span>Profile</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Guest Management Screen -->
+        <div class="screen" id="guest-management">
+            <div class="status-bar">
+                <span>9:41</span>
+                <span>🔋 100%</span>
+            </div>
+            <div class="header">
+                <button class="back-btn" onclick="changeScreen('user-dashboard')">←</button>
+                <h1>Guest Management</h1>
+                <p>Manage RSVPs & seating</p>
+            </div>
+            <div class="content">
+                <div class="guest-table">
+                    <h3>Guest List</h3>
+                    <div class="guest-row">
+                        <span>Rahul Gupta</span>
+                        <span>RSVP: Yes</span>
+                        <span>Veg</span>
+                    </div>
+                    <div class="guest-row">
+                        <span>Priya Singh</span>
+                        <span>RSVP: Pending</span>
+                        <span>Non-Veg</span>
+                    </div>
+                </div>
+                <div class="recommendation-card">
+                    <h3>Seating Chart</h3>
+                    <p>Auto-generated based on guest relationships</p>
+                    <button class="btn-outline" style="width: 100%;">View Chart</button>
+                </div>
+                <div class="recommendation-card">
+                    <h3>Digital Invites</h3>
+                    <p>Create and send eco-friendly e-invites</p>
+                    <button class="btn-outline" style="width: 100%;">Design Invite</button>
+                </div>
+            </div>
+            <div class="bottom-nav">
+                <div class="nav-item" onclick="changeScreen('home')">
+                    <div class="icon">🏠</div>
+                    <span>Home</span>
+                </div>
+                <div class="nav-item" onclick="changeScreen('search')">
+                    <div class="icon">🔍</div>
+                    <span>Search</span>
+                </div>
+                <div class="nav-item" onclick="changeScreen('wishlist')">
+                    <div class="icon">❤️</div>
+                    <span>Saved</span>
+                </div>
+                <div class="nav-item active" onclick="changeScreen('guest-management')">
+                    <div class="icon">👥</div>
+                    <span>Guests</span>
+                </div>
+                <div class="nav-item" onclick="changeScreen('profile')">
+                    <div class="icon">👤</div>
+                    <span>Profile</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Review Submission Screen -->
+        <div class="screen" id="review-submission">
+            <div class="status-bar">
+                <span>9:41</span>
+                <span>🔋 100%</span>
+            </div>
+            <div class="header">
+                <button class="back-btn" onclick="changeScreen('user-dashboard')">←</button>
+                <h1>Submit Review</h1>
+                <p>Royal Palace</p>
+            </div>
+            <div class="content">
+                <div class="form-group">
+                    <label>Rating</label>
+                    <div class="rating" style="font-size: 24px; color: #FFD700;">⭐⭐⭐⭐⭐</div>
+                </div>
+                <div class="form-group">
+                    <label>Your Review</label>
+                    <textarea placeholder="Share your experience..." rows="5" aria-label="Review"></textarea>
+                </div>
+                <button class="btn" style="width: 100%;">Submit Review</button>
+            </div>
+        </div>
+
+        <!-- Notifications Screen -->
+        <div class="screen" id="notifications">
+            <div class="status-bar">
+                <span>9:41</span>
+                <span>🔋 100%</span>
+            </div>
+            <div class="header">
+                <button class="back-btn" onclick="changeScreen('home')">←</button>
+                <h1>Notifications</h1>
+                <p>Stay updated</p>
+            </div>
+            <div class="content">
+                <div class="notification">
+                    <span>🔔</span>
+                    <div>
+                        <h4>New Message</h4>
+                        <p>Royal Palace responded to your inquiry.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="bottom-nav">
+                <div class="nav-item" onclick="changeScreen('home')">
+                    <div class="icon">🏠</div>
+                    <span>Home</span>
+                </div>
+                <div class="nav-item" onclick="changeScreen('search')">
+                    <div class="icon">🔍</div>
+                    <span>Search</span>
+                </div>
+                <div class="nav-item" onclick="changeScreen('wishlist')">
+                    <div class="icon">❤️</div>
+                    <span>Saved</span>
+                </div>
+                <div class="nav-item" onclick="changeScreen('guest-management')">
+                    <div class="icon">👥</div>
+                    <span>Guests</span>
+                </div>
+                <div class="nav-item" onclick="changeScreen('profile')">
+                    <div class="icon">👤</div>
+                    <span>Profile</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Chat Screen -->
+        <div class="screen" id="chat">
+            <div class="status-bar">
+                <span>9:41</span>
+                <span>🔋 100%</span>
+            </div>
+            <div class="header">
+                <button class="back-btn" onclick="changeScreen('user-dashboard')">←</button>
+                <h1>Chat with Royal Palace</h1>
+                <p>Venue • Delhi NCR</p>
+            </div>
+            <div class="content">
+                <div class="chat-message">
+                    <p><strong>Royal Palace:</strong> Can you confirm the event date?</p>
+                </div>
+                <div class="chat-message">
+                    <p><strong>You:</strong> December 1st, 2025.</p>
+                </div>
+            </div>
+            <div class="chat-input">
+                <input type="text" placeholder="Type a message..." aria-label="Chat message">
+                <button class="btn-outline" style="padding: 8px;">📞 Call</button>
+                <button class="btn-outline" style="padding: 8px;">🎥 Video</button>
+                <button>Send</button>
+            </div>
+        </div>
+
+        <!-- Blog & Tips Screen -->
+        <div class="screen" id="blog">
+            <div class="status-bar">
+                <span>9:41</span>
+                <span>🔋 100%</span>
+            </div>
+            <div class="header">
+                <button class="back-btn" onclick="changeScreen('home')">←</button>
+                <h1>Blog & Tips</h1>
+                <p>Wedding inspiration</p>
+            </div>
+            <div class="content">
+                <div class="blog-item">
+                    <div class="blog-image"></div>
+                    <h3>Choosing Your Venue</h3>
+                    <p>Top tips for finding the perfect venue...</p>
+                </div>
+            </div>
+            <div class="bottom-nav">
+                <div class="nav-item" onclick="changeScreen('home')">
+                    <div class="icon">🏠</div>
+                    <span>Home</span>
+                </div>
+                <div class="nav-item" onclick="changeScreen('search')">
+                    <div class="icon">🔍</div>
+                    <span>Search</span>
+                </div>
+                <div class="nav-item" onclick="changeScreen('wishlist')">
+                    <div class="icon">❤️</div>
+                    <span>Saved</span>
+                </div>
+                <div class="nav-item" onclick="changeScreen('guest-management')">
+                    <div class="icon">👥</div>
+                    <span>Guests</span>
+                </div>
+                <div class="nav-item" onclick="changeScreen('profile')">
+                    <div class="icon">👤</div>
+                    <span>Profile</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Referral Screen -->
+        <div class="screen" id="referral">
+            <div class="status-bar">
+                <span>9:41</span>
+                <span>🔋 100%</span>
+            </div>
+            <div class="header">
+                <button class="back-btn" onclick="changeScreen('user-dashboard')">←</button>
+                <h1>Refer & Earn</h1>
+                <p>Invite friends, get rewards</p>
+            </div>
+            <div class="content">
+                <div class="banner">
+                    <h2>Invite Friends</h2>
+                    <p>Earn ₹1000 for each friend who books!</p>
+                </div>
+                <div class="form-group">
+                    <label>Your Referral Code</label>
+                    <input type="text" value="VIVAHLY123" readonly aria-label="Referral code">
+                </div>
+                <div class="social-buttons">
+                    <button class="social-btn" onclick="shareContent('Instagram')"
+                        aria-label="Share on Instagram">📷</button>
+                    <button class="social-btn" onclick="shareContent('WhatsApp')"
+                        aria-label="Share on WhatsApp">💬</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Profile Screen -->
+        <div class="screen" id="profile">
+            <div class="status-bar">
+                <span>9:41</span>
+                <span>🔋 100%</span>
+            </div>
+            <div class="profile-header">
+                <div class="profile-avatar">A</div>
+                <h1>Anita Sharma</h1>
+                <p>Delhi NCR</p>
+            </div>
+            <div class="content">
+                <div class="menu-item" onclick="changeScreen('user-dashboard')">
+                    <div class="icon">📊</div>
+                    <span>My Dashboard</span>
+                </div>
+                <div class="menu-item" onclick="changeScreen('wishlist')">
+                    <div class="icon">❤️</div>
+                    <span>Saved Vendors</span>
+                </div>
+                <div class="menu-item" onclick="changeScreen('notifications')">
+                    <div class="icon">🔔</div>
+                    <span>Notifications</span>
+                </div>
+                <div class="menu-item" onclick="changeScreen('settings')">
+                    <div class="icon">⚙️</div>
+                    <span>Settings</span>
+                </div>
+                <div class="menu-item" onclick="changeScreen('help')">
+                    <div class="icon">❓</div>
+                    <span>Help & Support</span>
+                </div>
+            </div>
+            <div class="bottom-nav">
+                <div class="nav-item" onclick="changeScreen('home')">
+                    <div class="icon">🏠</div>
+                    <span>Home</span>
+                </div>
+                <div class="nav-item" onclick="changeScreen('search')">
+                    <div class="icon">🔍</div>
+                    <span>Search</span>
+                </div>
+                <div class="nav-item" onclick="changeScreen('wishlist')">
+                    <div class="icon">❤️</div>
+                    <span>Saved</span>
+                </div>
+                <div class="nav-item" onclick="changeScreen('guest-management')">
+                    <div class="icon">👥</div>
+                    <span>Guests</span>
+                </div>
+                <div class="nav-item active" onclick="changeScreen('profile')">
+                    <div class="icon">👤</div>
+                    <span>Profile</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Settings Screen -->
+        <div class="screen" id="settings">
+            <div class="status-bar">
+                <span>9:41</span>
+                <span>🔋 100%</span>
+            </div>
+            <div class="header">
+                <button class="back-btn" onclick="changeScreen('profile')">←</button>
+                <h1>Settings</h1>
+                <p>Customize your experience</p>
+            </div>
+            <div class="content">
+                <div class="settings-section">
+                    <h3>General</h3>
+                    <div class="form-group">
+                        <label>Language</label>
+                        <select onchange="changeLanguage(this.value)" aria-label="Language">
+                            <option value="en">English</option>
+                            <option value="hi">Hindi</option>
+                            <option value="ta">Tamil</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Currency</label>
+                        <select onchange="changeCurrency(this.value)" aria-label="Currency">
+                            <option value="INR">Indian Rupee (₹)</option>
+                            <option value="USD">US Dollar ($)</option>
+                            <option value="EUR">Euro (€)</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="settings-section">
+                    <h3>Appearance</h3>
+                    <div class="form-group">
+                        <label>Theme</label>
+                        <select onchange="changeTheme(this.value)" aria-label="Theme">
+                            <option value="light">Light</option>
+                            <option value="dark">Dark</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Color Scheme</label>
+                        <select aria-label="Color Scheme">
+                            <option>Maroon & Gold</option>
+                            <option>Pastel Pink</option>
+                            <option>Ivory Bliss</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="settings-section">
+                    <h3>Accessibility</h3>
+                    <div class="form-group">
+                        <label>Font Size</label>
+                        <select onchange="changeFontSize(this.value)" aria-label="Font Size">
+                            <option value="normal">Normal</option>
+                            <option value="large">Large</option>
+                            <option value="extra-large">Extra Large</option>
+                        </select>
+                    </div>
+                    <div class="toggle">
+                        <label>High Contrast Mode</label>
+                        <input type="checkbox" onchange="toggleHighContrast(this.checked)"
+                            aria-label="High Contrast Mode">
+                    </div>
+                </div>
+                <div class="settings-section">
+                    <h3>Notifications</h3>
+                    <div class="toggle">
+                        <label>Push Notifications</label>
+                        <input type="checkbox" checked aria-label="Push Notifications">
+                    </div>
+                    <div class="toggle">
+                        <label>Email Notifications</label>
+                        <input type="checkbox" aria-label="Email Notifications">
+                    </div>
+                    <div class="toggle">
+                        <label>In-App Alerts</label>
+                        <input type="checkbox" checked aria-label="In-App Alerts">
+                    </div>
+                </div>
+                <div class="settings-section">
+                    <h3>Integrations</h3>
+                    <div class="form-group">
+                        <label>Calendar Sync</label>
+                        <select onchange="syncCalendar(this.value)" aria-label="Calendar Sync">
+                            <option value="none">None</option>
+                            <option value="google">Google Calendar</option>
+                            <option value="ical">iCal</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="settings-section">
+                    <h3>Data & Privacy</h3>
+                    <div class="menu-item" onclick="manageDataSharing()">
+                        <div class="icon">🔒</div>
+                        <span>Manage Data Sharing</span>
+                    </div>
+                    <div class="menu-item" onclick="exportData()">
+                        <div class="icon">📤</div>
+                        <span>Export My Data</span>
+                    </div>
+                    <div class="menu-item">
+                        <div class="icon">📜</div>
+                        <span>Privacy Policy</span>
+                    </div>
+                </div>
+                <button class="btn" style="width: 100%;">Save Changes</button>
+            </div>
+        </div>
+
+        <!-- Help & Support Screen -->
+        <div class="screen" id="help">
+            <div class="status-bar">
+                <span>9:41</span>
+                <span>🔋 100%</span>
+            </div>
+            <div class="header">
+                <button class="back-btn" onclick="changeScreen('profile')">←</button>
+                <h1>Help & Support</h1>
+                <p>We're here to help</p>
+            </div>
+            <div class="content">
+                <div class="form-group">
+                    <label>Contact Us</label>
+                    <input type="text" placeholder="Your query or issue" aria-label="Support query">
+                </div>
+                <button class="btn" style="width: 100%;">Submit Query</button>
+                <div class="menu-item">
+                    <div class="icon">📞</div>
+                    <span>Call: +91 1234567890</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function changeScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(screen => {
+                screen.classList.remove('active');
+            });
+            document.getElementById(screenId).classList.add('active');
+            document.querySelectorAll('.nav-item').forEach(nav => {
+                nav.classList.remove('active');
+            });
+            const navItem = document.querySelector(`.nav-item[onclick="changeScreen('${screenId}')"]`);
+            if (navItem) navItem.classList.add('active');
+        }
+
+        function showTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.style.display = 'none';
+            });
+            document.getElementById(tabId).style.display = 'block';
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelector(`.tab[onclick="showTab('${tabId}')"]`).classList.add('active');
+        }
+
+        function togglePassword() {
+            const passwordInput = document.getElementById('password');
+            const toggleBtn = passwordInput.nextElementSibling;
+            passwordInput.type = passwordInput.type === 'password' ? 'text' : 'password';
+            toggleBtn.textContent = passwordInput.type === 'password' ? 'Show' : 'Hide';
+        }
+
+        function login() {
+            const loginBtn = document.querySelector('[onclick="login()"]');
+            const loginText = document.getElementById('loginText');
+            const loginSpinner = document.getElementById('loginSpinner');
+
+            // Show loading state
+            if (loginText && loginSpinner) {
+                loginText.style.display = 'none';
+                loginSpinner.style.display = 'block';
+                loginBtn.disabled = true;
+            }
+
+            const twoFactor = document.getElementById('twoFactor').checked;
+            const otpInput = document.getElementById('otp');
+
+            setTimeout(() => {
+                if (twoFactor) {
+                    otpInput.style.display = 'block';
+                    alert('Please enter the OTP sent to your phone.');
+                } else {
+                    alert('Login successful!');
+                    changeScreen('home');
+                }
+
+                // Reset button state
+                if (loginText && loginSpinner) {
+                    loginText.style.display = 'inline';
+                    loginSpinner.style.display = 'none';
+                    loginBtn.disabled = false;
+                }
+            }, 1500);
+        }
+
+        function toggleOTP() {
+            const otpInput = document.getElementById('otp');
+            const twoFactorCheckbox = document.getElementById('twoFactor');
+
+            if (twoFactorCheckbox.checked) {
+                otpInput.style.display = 'block';
+                otpInput.required = true;
+            } else {
+                otpInput.style.display = 'none';
+                otpInput.required = false;
+            }
+        }
+
+        function openARPreview() {
+            alert('Launching AR Preview...');
+        }
+
+        function shareContent(platform) {
+            alert(`Sharing on ${platform}...`);
+        }
+
+        function changeLanguage(lang) {
+            alert(`Language changed to ${lang}`);
+        }
+
+        function changeCurrency(currency) {
+            alert(`Currency changed to ${currency}`);
+        }
+
+        function changeTheme(theme) {
+            alert(`Theme changed to ${theme}`);
+        }
+
+        function changeFontSize(size) {
+            document.body.style.fontSize = size === 'large' ? '18px' : size === 'extra-large' ? '20px' : '16px';
+        }
+
+        function toggleHighContrast(enabled) {
+            document.body.style.background = enabled ? '#000' : 'linear-gradient(135deg, #FCE4EC 0%, #FFF8E1 100%)';
+            document.body.style.color = enabled ? '#FFF' : '#333';
+        }
+
+        function syncCalendar(service) {
+            alert(`Syncing with ${service}...`);
+        }
+
+        function manageDataSharing() {
+            alert('Opening data sharing settings...');
+        }
+
+        function exportData() {
+            alert('Exporting your data...');
+        }
+
+        // Enhanced keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                const modal = document.querySelector('.modal.active');
+                if (modal) {
+                    modal.classList.remove('active');
+                }
+            }
+        });
+
+        // Add swipe gestures for mobile
+        let startX = 0;
+        let startY = 0;
+
+        document.addEventListener('touchstart', (e) => {
+            startX = e.touches[0].clientX;
+            startY = e.touches[0].clientY;
+        });
+
+        document.addEventListener('touchend', (e) => {
+            const endX = e.changedTouches[0].clientX;
+            const endY = e.changedTouches[0].clientY;
+            const diffX = startX - endX;
+            const diffY = startY - endY;
+
+            if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 50) {
+                // Horizontal swipe detected
+                if (diffX > 0) {
+                    // Swipe left - next screen
+                    console.log('Swipe left detected');
+                } else {
+                    // Swipe right - previous screen
+                    console.log('Swipe right detected');
+                }
+            }
+        });
+
+        // Initialize app
+        document.addEventListener('DOMContentLoaded', () => {
+            // Auto-start onboarding after splash screen
+            setTimeout(() => {
+                changeScreen('onboarding');
+            }, 3000);
+        });
+    </script>
+</body>
+
+</html>
